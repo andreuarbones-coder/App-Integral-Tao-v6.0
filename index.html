@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Jardín OS Tao</title>
+    <title>Jardín OS v5.5</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     
@@ -15,9 +15,11 @@
         header { padding-top: env(safe-area-inset-top); }
         .bottom-safe-area { padding-bottom: env(safe-area-inset-bottom); }
         
-        /* Temas Dinámicos */
-        .theme-centro { --primary: #064e3b; --accent: #059669; --light: #d1fae5; } /* Verde */
-        .theme-ejemplares { --primary: #1e3a8a; --accent: #2563eb; --light: #dbeafe; } /* Azul */
+        /* Temas Dinámicos - ALTO CONTRASTE */
+        /* Centro: Verde Bosque */
+        .theme-centro { --primary: #064e3b; --accent: #059669; --bg-btn: #064e3b; --light: #d1fae5; } 
+        /* Ejemplares: Violeta Intenso (Indigo) - Muy lejos del verde */
+        .theme-ejemplares { --primary: #312e81; --accent: #4338ca; --bg-btn: #312e81; --light: #e0e7ff; } 
         
         .tab-active { border-bottom: 3px solid #bef264; opacity: 1; color: white; }
         .tab-inactive { border-bottom: 3px solid transparent; opacity: 0.6; color: #e5e7eb; }
@@ -49,20 +51,23 @@
                     <div class="flex items-center gap-2 mt-1">
                          <span id="currentDate" class="text-xs opacity-80">...</span>
                          <div id="connectionStatus" class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+                         <span id="offlineIndicator" class="text-[10px] bg-yellow-500 text-black px-1 rounded hidden">OFFLINE (GUARDANDO LOCAL)</span>
                     </div>
                 </div>
                 
-                <!-- Botón Modo Radio (Wake Lock) -->
+                <!-- Botón Modo Radio -->
                 <button id="wakeLockBtn" onclick="toggleWakeLock()" class="text-xs border border-white/30 rounded px-2 py-1 opacity-70 hover:opacity-100 hover:bg-white/10">
                     <i class="fas fa-power-off"></i> Pantalla On
                 </button>
             </div>
             
-            <div class="flex text-xs font-bold uppercase tracking-wider mt-4">
-                <button onclick="switchView('tasks')" id="tab-tasks" class="flex-1 pb-3 text-center tab-active transition-all">Tareas</button>
-                <button onclick="switchView('notes')" id="tab-notes" class="flex-1 pb-3 text-center tab-inactive transition-all">Notas</button>
-                <button onclick="switchView('stock')" id="tab-stock" class="flex-1 pb-3 text-center tab-inactive transition-all">Stock</button>
-                <button onclick="switchView('chat')" id="tab-chat" class="flex-1 pb-3 text-center tab-inactive transition-all"><i class="fas fa-broadcast-tower"></i> Radio</button>
+            <!-- Navegación Principal -->
+            <div class="flex text-xs font-bold uppercase tracking-wider mt-4 overflow-x-auto">
+                <button onclick="switchView('tasks')" id="tab-tasks" class="flex-1 pb-3 text-center tab-active min-w-[60px]">Tareas</button>
+                <button onclick="switchView('delivery')" id="tab-delivery" class="flex-1 pb-3 text-center tab-inactive min-w-[60px]">Repartos</button>
+                <button onclick="switchView('notes')" id="tab-notes" class="flex-1 pb-3 text-center tab-inactive min-w-[60px]">Notas</button>
+                <button onclick="switchView('stock')" id="tab-stock" class="flex-1 pb-3 text-center tab-inactive min-w-[60px]">Stock</button>
+                <button onclick="switchView('chat')" id="tab-chat" class="flex-1 pb-3 text-center tab-inactive min-w-[60px]"><i class="fas fa-broadcast-tower"></i> Radio</button>
             </div>
         </div>
     </header>
@@ -75,27 +80,26 @@
             <div id="taskListContainer" class="pb-20 space-y-3"></div>
         </div>
 
+        <!-- VISTA REPARTOS (NUEVO) -->
+        <div id="deliveryView" class="view-section hidden">
+            <div id="deliveryListContainer" class="pb-20 space-y-4"></div>
+        </div>
+
         <!-- VISTA NOTAS -->
         <div id="notesView" class="view-section hidden">
             <div id="notesListContainer" class="grid gap-4 pb-20"></div>
         </div>
         
-        <!-- VISTA STOCK (Sembrado) -->
+        <!-- VISTA STOCK -->
         <div id="stockView" class="view-section hidden text-center pt-20">
             <i class="fas fa-boxes text-6xl text-stone-300 mb-4"></i>
             <h2 class="text-xl font-bold text-stone-600">Base de Stock</h2>
-            <p class="text-stone-400 text-sm mt-2">Conexión a base de datos pendiente...</p>
-            <div class="mt-8 p-4 border border-dashed border-stone-300 rounded-lg mx-8 bg-white/50">
-                <p class="text-xs text-stone-500">Aquí se visualizará el inventario de:<br><b id="stockBranchName">Centro Tao</b></p>
-            </div>
+            <p class="text-stone-400 text-sm mt-2">Pronto: Conexión a inventario local.</p>
         </div>
 
         <!-- VISTA CHAT / RADIO -->
         <div id="chatView" class="view-section hidden h-full flex flex-col">
-            <div id="chatContainer" class="flex-grow overflow-y-auto pb-28 space-y-2 flex flex-col p-2">
-                <div class="text-center text-xs text-stone-400 mt-4">Canal de frecuencia abierta</div>
-            </div>
-            
+            <div id="chatContainer" class="flex-grow overflow-y-auto pb-28 space-y-2 flex flex-col p-2"></div>
             <!-- Controles Chat -->
             <div class="fixed bottom-24 left-0 w-full px-4 max-w-lg mx-auto left-0 right-0 z-50">
                 <div class="bg-white rounded-full shadow-2xl border border-stone-200 p-2 flex items-center gap-2">
@@ -121,10 +125,10 @@
         </div>
     </main>
 
-    <!-- Botonera Inferior (Tareas/Notas) -->
+    <!-- Botonera Inferior (Universal) -->
     <div id="mainControls" class="fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur border-t border-stone-200 p-3 shadow-lg z-40 flex gap-3 justify-center bottom-safe-area">
         <button onclick="handleMainAction()" class="text-white p-3 rounded-xl shadow-md flex-1 font-bold flex items-center justify-center gap-2 active:scale-95 transition-transform" style="background-color: var(--accent);">
-            <i class="fas fa-plus"></i> Nuevo
+            <i class="fas fa-plus"></i> <span id="mainBtnText">Nuevo</span>
         </button>
     </div>
 
@@ -132,38 +136,45 @@
     <div id="addTaskModal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white w-full max-w-sm rounded-2xl shadow-xl overflow-hidden p-5 space-y-4">
             <h2 class="font-bold text-lg" style="color: var(--primary);">Nueva Tarea / Ciclo</h2>
-            
-            <div>
-                <label class="text-xs font-bold text-stone-500 uppercase">Descripción</label>
-                <input type="text" id="newTaskInput" class="w-full p-2 border-b-2 border-stone-200 outline-none focus:border-emerald-500" placeholder="Ej: Riego sector sur...">
-            </div>
-
-            <div>
-                <label class="text-xs font-bold text-stone-500 uppercase">Responsable (Opcional)</label>
-                <input type="text" id="newTaskAssignee" class="w-full p-2 border-b-2 border-stone-200 outline-none focus:border-emerald-500" placeholder="Nombre...">
-            </div>
-
+            <input type="text" id="newTaskInput" class="w-full p-2 border-b-2 border-stone-200 outline-none focus:border-emerald-500" placeholder="Descripción...">
+            <input type="text" id="newTaskAssignee" class="w-full p-2 border-b-2 border-stone-200 outline-none focus:border-emerald-500" placeholder="Responsable (Opcional)">
             <div class="flex items-center justify-between bg-stone-50 p-3 rounded-lg">
-                <span class="text-sm font-medium text-stone-700">¿Es Tarea Cíclica/Fija?</span>
+                <span class="text-sm font-medium text-stone-700">¿Es Cíclica/Fija?</span>
                 <label class="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" id="newTaskCyclic" class="sr-only peer">
-                    <div class="w-11 h-6 bg-stone-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                    <div class="w-11 h-6 bg-stone-200 peer-focus:outline-none rounded-full peer peer-checked:bg-emerald-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
                 </label>
             </div>
+            <div class="grid grid-cols-4 gap-2 text-xs font-bold">
+                <button onclick="selectPriority('critical')" class="p-2 bg-red-100 text-red-700 rounded prio-btn" id="btn-critical">URG</button>
+                <button onclick="selectPriority('high')" class="p-2 bg-orange-100 text-orange-700 rounded prio-btn" id="btn-high">ALT</button>
+                <button onclick="selectPriority('medium')" class="p-2 bg-blue-100 text-blue-700 rounded prio-btn" id="btn-medium">MED</button>
+                <button onclick="selectPriority('low')" class="p-2 bg-emerald-100 text-emerald-700 rounded prio-btn ring-2 ring-emerald-500" id="btn-low">BAJ</button>
+            </div>
+            <div class="flex gap-3 pt-2">
+                <button onclick="closeModal('addTaskModal')" class="flex-1 py-3 text-stone-500 bg-stone-100 rounded-lg font-bold">Cancelar</button>
+                <button onclick="addNewTask()" class="flex-1 py-3 text-white rounded-lg shadow font-bold" style="background-color: var(--primary);">Guardar</button>
+            </div>
+        </div>
+    </div>
 
-            <div>
-                <label class="text-xs font-bold text-stone-500 uppercase mb-2 block">Prioridad</label>
-                <div class="grid grid-cols-4 gap-2 text-xs font-bold">
-                    <button onclick="selectPriority('critical')" class="p-2 bg-red-100 text-red-700 rounded prio-btn" id="btn-critical">URG</button>
-                    <button onclick="selectPriority('high')" class="p-2 bg-orange-100 text-orange-700 rounded prio-btn" id="btn-high">ALT</button>
-                    <button onclick="selectPriority('medium')" class="p-2 bg-blue-100 text-blue-700 rounded prio-btn" id="btn-medium">MED</button>
-                    <button onclick="selectPriority('low')" class="p-2 bg-emerald-100 text-emerald-700 rounded prio-btn ring-2 ring-emerald-500" id="btn-low">BAJ</button>
-                </div>
+    <!-- Modal Reparto (NUEVO) -->
+    <div id="addDeliveryModal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-sm rounded-2xl shadow-xl overflow-hidden p-5 space-y-3">
+            <h2 class="font-bold text-lg" style="color: var(--primary);">Nuevo Reparto</h2>
+            
+            <input type="text" id="delClient" class="w-full p-2 border-b outline-none" placeholder="Nombre Cliente">
+            <input type="tel" id="delPhone" class="w-full p-2 border-b outline-none" placeholder="Teléfono">
+            <textarea id="delItems" class="w-full p-2 border-b outline-none h-20 resize-none" placeholder="¿Qué lleva el pedido?"></textarea>
+            
+            <div class="grid grid-cols-2 gap-2">
+                <input type="text" id="delWhen" class="p-2 border-b outline-none text-sm" placeholder="¿Para Cuándo?">
+                <input type="text" id="delWhere" class="p-2 border-b outline-none text-sm" placeholder="Dirección / Zona">
             </div>
 
-            <div class="flex gap-3 pt-2">
-                <button onclick="closeModal('addTaskModal')" class="flex-1 py-3 text-stone-500 font-bold bg-stone-100 rounded-lg">Cancelar</button>
-                <button onclick="addNewTask()" class="flex-1 py-3 text-white font-bold rounded-lg shadow" style="background-color: var(--primary);">Guardar</button>
+            <div class="flex gap-3 pt-4">
+                <button onclick="closeModal('addDeliveryModal')" class="flex-1 py-3 text-stone-500 bg-stone-100 rounded-lg font-bold">Cancelar</button>
+                <button onclick="addNewDelivery()" class="flex-1 py-3 text-white rounded-lg shadow font-bold" style="background-color: var(--primary);">Agendar</button>
             </div>
         </div>
     </div>
@@ -175,7 +186,7 @@
              <textarea id="newNoteInput" rows="5" class="w-full bg-transparent outline-none text-stone-700" placeholder="Escribir..."></textarea>
              <div class="flex justify-end gap-2 mt-4">
                  <button onclick="closeModal('addNoteModal')" class="text-stone-400 px-4 py-2">Cancelar</button>
-                 <button onclick="addNewNote()" class="bg-yellow-400 text-yellow-900 px-6 py-2 rounded-lg font-bold shadow">Pegar Nota</button>
+                 <button onclick="addNewNote()" class="bg-yellow-400 text-yellow-900 px-6 py-2 rounded-lg font-bold shadow">Pegar</button>
              </div>
         </div>
     </div>
@@ -184,7 +195,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, serverTimestamp, query, orderBy, limit, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, serverTimestamp, query, orderBy, limit, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
         // === CONFIGURACIÓN ===
@@ -201,29 +212,31 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         const storage = getStorage(app);
-        const APP_ID = 'jardin-os-v4';
+        const APP_ID = 'jardin-os-v5'; // Versión 5
+
+        // === PERSISTENCIA OFFLINE (Local Storage Avanzado) ===
+        enableIndexedDbPersistence(db).catch((err) => {
+            if (err.code == 'failed-precondition') {
+                console.log("Múltiples pestañas abiertas, persistencia solo en una.");
+            } else if (err.code == 'unimplemented') {
+                console.log("El navegador no soporta persistencia offline.");
+            }
+        });
 
         // === ESTADO ===
-        let currentBranch = localStorage.getItem('tao_branch') || 'centro'; // 'centro' | 'ejemplares'
+        let currentBranch = localStorage.getItem('tao_branch') || 'centro';
         let currentView = 'tasks';
         let currentUser = null;
         let selectedPriority = 'low';
         let wakeLock = null;
         
-        // Listeners para desuscribir al cambiar de rama
-        let unsubTasks = null;
-        let unsubNotes = null;
-        let unsubChat = null;
-
-        // Audio
-        let mediaRecorder;
-        let audioChunks = [];
-        let isRecording = false;
+        let unsubTasks, unsubDeliveries, unsubNotes, unsubChat;
+        let mediaRecorder, audioChunks = [], isRecording = false;
 
         // === INICIO ===
         async function initApp() {
             applyBranchTheme();
-            checkAutoResetDay(); // Limpieza automática de HOY
+            checkAutoResetDay();
             setTodayDate();
             
             await signInAnonymously(auth);
@@ -236,6 +249,10 @@
                     updateConnection(false);
                 }
             });
+
+            // Monitor de conexión real
+            window.addEventListener('online', () => document.getElementById('offlineIndicator').classList.add('hidden'));
+            window.addEventListener('offline', () => document.getElementById('offlineIndicator').classList.remove('hidden'));
         }
 
         // === LÓGICA DE SUCURSALES ===
@@ -243,52 +260,44 @@
             currentBranch = currentBranch === 'centro' ? 'ejemplares' : 'centro';
             localStorage.setItem('tao_branch', currentBranch);
             applyBranchTheme();
-            subscribeToBranch(currentBranch); // Recargar datos
+            subscribeToBranch(currentBranch);
         }
 
         function applyBranchTheme() {
             const body = document.getElementById('appBody');
             const header = document.getElementById('mainHeader');
             const name = document.getElementById('branchName');
-            const stockName = document.getElementById('stockBranchName');
             
             if(currentBranch === 'centro') {
                 body.classList.remove('theme-ejemplares');
                 body.classList.add('theme-centro');
                 header.style.backgroundColor = '#064e3b';
                 name.textContent = 'Centro Tao';
-                stockName.textContent = 'Centro Tao';
             } else {
                 body.classList.remove('theme-centro');
                 body.classList.add('theme-ejemplares');
-                header.style.backgroundColor = '#1e3a8a';
+                header.style.backgroundColor = '#312e81'; // Violeta Indigo
                 name.textContent = 'Ejemplares Tao';
-                stockName.textContent = 'Ejemplares Tao';
             }
         }
 
         function subscribeToBranch(branch) {
-            // Desuscribir anteriores si existen
             if(unsubTasks) unsubTasks();
+            if(unsubDeliveries) unsubDeliveries(); // Nuevo listener
             if(unsubNotes) unsubNotes();
             if(unsubChat) unsubChat();
 
-            const basePath = ['artifacts', APP_ID, branch]; // Carpeta separada por sucursal
+            const basePath = ['artifacts', APP_ID, branch];
             
             // 1. Tareas
             const qTasks = query(collection(db, ...basePath, 'tasks'), orderBy('createdAt', 'desc'));
             unsubTasks = onSnapshot(qTasks, (snap) => {
                 const list = document.getElementById('taskListContainer');
                 list.innerHTML = '';
-                
-                if(snap.empty) {
-                    list.innerHTML = `<div class="text-center p-8 opacity-40"><i class="fas fa-leaf text-4xl mb-2"></i><br>Todo en orden</div>`;
-                    return;
-                }
+                if(snap.empty) { list.innerHTML = `<div class="text-center p-8 opacity-40"><i class="fas fa-check-circle text-4xl mb-2"></i><br>Sin tareas pendientes</div>`; return; }
 
                 snap.forEach(doc => {
                     const t = doc.data();
-                    const id = doc.id;
                     const styles = getPriorityStyles(t.priority);
                     const isDone = t.checkedTotal;
                     
@@ -304,55 +313,73 @@
                                 <h3 class="text-base font-medium mt-1 leading-snug ${isDone ? 'completed-text' : 'text-stone-800'}">${t.text}</h3>
                                 ${t.assignee ? `<p class="text-xs text-stone-500 mt-1"><i class="fas fa-user-circle"></i> ${t.assignee}</p>` : ''}
                             </div>
-                            
-                            <!-- Botones Acción -->
                             <div class="flex flex-col gap-2 justify-center border-l pl-2 border-stone-100">
-                                ${!t.isCyclic ? `
-                                <button onclick="deleteTask('${id}')" class="text-stone-300 hover:text-red-500 p-1">
-                                    <i class="fas fa-trash"></i>
-                                </button>` : ''}
-                                <button onclick="toggleDay('${id}', ${t.checkedDay})" class="w-8 h-8 rounded-full border-2 flex items-center justify-center transition-colors ${t.checkedDay ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-stone-300 text-transparent'}">
-                                    <i class="fas fa-check text-xs"></i>
-                                </button>
+                                ${!t.isCyclic ? `<button onclick="deleteDocItem('tasks','${doc.id}')" class="text-stone-300 hover:text-red-500 p-1"><i class="fas fa-trash"></i></button>` : ''}
+                                <button onclick="toggleDay('${doc.id}', ${t.checkedDay})" class="w-8 h-8 rounded-full border-2 flex items-center justify-center transition-colors ${t.checkedDay ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-stone-300 text-transparent'}"><i class="fas fa-check text-xs"></i></button>
                             </div>
+                        </div>`;
+                    list.appendChild(el);
+                });
+            });
+
+            // 2. Repartos (NUEVO)
+            const qDel = query(collection(db, ...basePath, 'deliveries'), orderBy('createdAt', 'desc'));
+            unsubDeliveries = onSnapshot(qDel, (snap) => {
+                const list = document.getElementById('deliveryListContainer');
+                list.innerHTML = '';
+                if(snap.empty) { list.innerHTML = `<div class="text-center p-8 opacity-40"><i class="fas fa-truck text-4xl mb-2"></i><br>Sin repartos</div>`; return; }
+
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    const isDone = d.status === 'delivered';
+                    const el = document.createElement('div');
+                    el.className = `bg-white rounded-xl shadow-sm border border-stone-200 p-4 relative ${isDone ? 'opacity-60 bg-stone-50' : ''}`;
+                    el.innerHTML = `
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <h3 class="font-bold text-stone-800 text-lg">${d.client}</h3>
+                                <a href="tel:${d.phone}" class="text-emerald-600 text-sm font-bold flex items-center gap-1"><i class="fas fa-phone-alt"></i> ${d.phone}</a>
+                            </div>
+                            <button onclick="toggleDelivery('${doc.id}', '${d.status}')" class="px-3 py-1 rounded-full text-xs font-bold ${isDone ? 'bg-emerald-100 text-emerald-700' : 'bg-stone-100 text-stone-500'}">
+                                ${isDone ? 'ENTREGADO' : 'PENDIENTE'}
+                            </button>
+                        </div>
+                        <div class="bg-stone-50 p-2 rounded text-sm text-stone-700 mb-3 italic">"${d.items}"</div>
+                        <div class="flex justify-between items-end text-xs text-stone-500 border-t pt-2">
+                            <div>
+                                <p><i class="far fa-clock"></i> ${d.when}</p>
+                                <a href="https://maps.google.com/?q=${d.where}" target="_blank" class="text-blue-600 underline mt-1 block"><i class="fas fa-map-marker-alt"></i> ${d.where}</a>
+                            </div>
+                            <button onclick="deleteDocItem('deliveries','${doc.id}')" class="text-stone-300 hover:text-red-500"><i class="fas fa-trash"></i></button>
                         </div>
                     `;
                     list.appendChild(el);
                 });
             });
 
-            // 2. Chat (Radio)
+            // 3. Chat
             const qChat = query(collection(db, ...basePath, 'chat'), orderBy('createdAt', 'asc'), limit(50));
             unsubChat = onSnapshot(qChat, (snap) => {
                 const container = document.getElementById('chatContainer');
-                
-                // Detectar si hay mensajes NUEVOS para reproducir
                 snap.docChanges().forEach((change) => {
                     if (change.type === "added") {
                         const msg = change.doc.data();
-                        // Solo reproducir si es audio, no soy yo quien lo mandó, y es reciente (menos de 30s)
                         if(msg.type === 'audio' && msg.sender !== currentUser.uid) {
                              const now = Date.now();
                              const msgTime = msg.createdAt ? msg.createdAt.toMillis() : now;
-                             if (now - msgTime < 30000) {
-                                 playAudioAuto(msg.url);
-                             }
+                             if (now - msgTime < 30000) playAudioAuto(msg.url);
                         }
                     }
                 });
-
-                // Render visual
                 container.innerHTML = '<div class="text-center text-xs text-stone-400 mt-4">Frecuencia Abierta</div>';
                 snap.forEach(doc => {
                     const msg = doc.data();
                     const isMe = msg.sender === currentUser.uid;
                     const div = document.createElement('div');
                     div.className = `msg-bubble ${isMe ? 'msg-me' : 'msg-other'} shadow-sm`;
-                    
                     if(msg.type === 'text') div.innerHTML = `<p class="text-sm">${msg.text}</p>`;
                     if(msg.type === 'image') div.innerHTML = `<img src="${msg.url}" class="rounded-lg border border-stone-200">`;
                     if(msg.type === 'audio') div.innerHTML = `<div class="flex items-center gap-2"><i class="fas fa-play-circle text-2xl opacity-50"></i> <audio controls src="${msg.url}" class="h-8 w-40"></audio></div>`;
-                    
                     const time = msg.createdAt ? new Date(msg.createdAt.seconds * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
                     div.innerHTML += `<div class="text-[9px] text-right mt-1 opacity-40">${time}</div>`;
                     container.appendChild(div);
@@ -360,7 +387,7 @@
                 container.scrollTop = container.scrollHeight;
             });
 
-            // 3. Notas
+            // 4. Notas
             const qNotes = query(collection(db, ...basePath, 'notes'), orderBy('createdAt', 'desc'));
             unsubNotes = onSnapshot(qNotes, (snap) => {
                 const list = document.getElementById('notesListContainer');
@@ -369,10 +396,7 @@
                     const n = doc.data();
                     const el = document.createElement('div');
                     el.className = "bg-yellow-50 p-4 rounded-xl shadow-sm border border-yellow-200 relative";
-                    el.innerHTML = `
-                        <p class="whitespace-pre-wrap text-stone-800 font-handwriting">${n.content}</p>
-                        <button onclick="deleteNote('${doc.id}')" class="absolute top-2 right-2 text-yellow-300 hover:text-red-400"><i class="fas fa-times"></i></button>
-                    `;
+                    el.innerHTML = `<p class="whitespace-pre-wrap text-stone-800 font-handwriting">${n.content}</p><button onclick="deleteDocItem('notes','${doc.id}')" class="absolute top-2 right-2 text-yellow-300 hover:text-red-400"><i class="fas fa-times"></i></button>`;
                     list.appendChild(el);
                 });
             });
@@ -382,50 +406,44 @@
         function checkAutoResetDay() {
             const todayStr = new Date().toDateString();
             const lastRun = localStorage.getItem('tao_last_run_date');
-            
             if (lastRun !== todayStr) {
-                // Es un nuevo día, limpiar marcadores
-                // Nota: Esto solo limpia visualmente hasta que se implemente una función Cloud Function real
-                // Para MVP, lo haremos "lazy": al cargar, buscamos tareas checkedDay=true y las falseamos
-                console.log("Nuevo día detectado. Limpiando...");
-                // (Implementación simplificada: el usuario lo notará al usar la app)
+                console.log("Nuevo día.");
                 localStorage.setItem('tao_last_run_date', todayStr);
-                // Aquí idealmente llamaríamos a una función batch update si pudiéramos, 
-                // pero por ahora dependemos del "Reiniciar Hoy" manual o lógica de servidor.
-                // Para hacerlo auto desde cliente requeriría leer todo y escribir todo, costoso al inicio.
-                // Dejaremos el "Reiniciar Hoy" manual como respaldo, pero el localStorage avisa.
-                alert("¡Buenos días! Recuerda reiniciar el día si es necesario."); 
+                // Aquí en el futuro se implementará la limpieza automática.
             }
         }
 
-        // === AUDIO PLAYER & WAKE LOCK ===
-        function playAudioAuto(url) {
-            const audio = new Audio(url);
-            audio.play().catch(e => console.log("Auto-play bloqueado por navegador (normal si no hay interacción previa)"));
+        // === ACCIONES REPARTOS (NUEVO) ===
+        window.addNewDelivery = async function() {
+            const client = document.getElementById('delClient').value;
+            const phone = document.getElementById('delPhone').value;
+            const items = document.getElementById('delItems').value;
+            const when = document.getElementById('delWhen').value;
+            const where = document.getElementById('delWhere').value;
+
+            if(!client || !items) return alert("Faltan datos básicos");
+
+            const basePath = ['artifacts', APP_ID, currentBranch, 'deliveries'];
+            await addDoc(collection(db, ...basePath), {
+                client, phone, items, when, where,
+                status: 'pending', createdAt: serverTimestamp()
+            });
+            closeModal('addDeliveryModal');
+            // Limpiar campos
+            document.getElementById('delClient').value = '';
+            document.getElementById('delPhone').value = '';
+            document.getElementById('delItems').value = '';
+            document.getElementById('delWhen').value = '';
+            document.getElementById('delWhere').value = '';
         }
 
-        window.toggleWakeLock = async function() {
-            if ('wakeLock' in navigator) {
-                try {
-                    if(wakeLock) {
-                        wakeLock.release();
-                        wakeLock = null;
-                        document.getElementById('wakeLockBtn').classList.remove('bg-white/20');
-                        alert("Pantalla desbloqueada (se suspenderá)");
-                    } else {
-                        wakeLock = await navigator.wakeLock.request('screen');
-                        document.getElementById('wakeLockBtn').classList.add('bg-white/20');
-                        alert("Pantalla activa: El audio seguirá sonando.");
-                    }
-                } catch (err) {
-                    alert("Error WakeLock: " + err.name);
-                }
-            } else {
-                alert("Tu navegador no soporta Wake Lock.");
-            }
+        window.toggleDelivery = async function(id, currentStatus) {
+            const newStatus = currentStatus === 'pending' ? 'delivered' : 'pending';
+            const basePath = ['artifacts', APP_ID, currentBranch, 'deliveries'];
+            await updateDoc(doc(db, ...basePath, id), { status: newStatus });
         }
 
-        // === ACCIONES TAREAS ===
+        // === ACCIONES GENERALES ===
         window.handleMainAction = function() {
             if(currentView === 'notes') {
                 document.getElementById('addNoteModal').classList.remove('hidden');
@@ -433,6 +451,9 @@
             } else if (currentView === 'tasks') {
                 document.getElementById('addTaskModal').classList.remove('hidden');
                 document.getElementById('newTaskInput').focus();
+            } else if (currentView === 'delivery') {
+                document.getElementById('addDeliveryModal').classList.remove('hidden');
+                document.getElementById('delClient').focus();
             }
         }
 
@@ -440,9 +461,7 @@
             const text = document.getElementById('newTaskInput').value.trim();
             const assignee = document.getElementById('newTaskAssignee').value.trim();
             const isCyclic = document.getElementById('newTaskCyclic').checked;
-            
             if(!text) return;
-            
             const basePath = ['artifacts', APP_ID, currentBranch, 'tasks'];
             await addDoc(collection(db, ...basePath), {
                 text, assignee, priority: selectedPriority, isCyclic,
@@ -450,7 +469,6 @@
             });
             closeModal('addTaskModal');
             document.getElementById('newTaskInput').value = '';
-            document.getElementById('newTaskAssignee').value = '';
         }
 
         window.toggleDay = async function(id, currentVal) {
@@ -458,16 +476,16 @@
             await updateDoc(doc(db, ...basePath, id), { checkedDay: !currentVal });
         }
 
-        window.deleteTask = async function(id) {
-            if(confirm("¿Borrar tarea?")) {
-                const basePath = ['artifacts', APP_ID, currentBranch, 'tasks'];
+        window.deleteDocItem = async function(coll, id) {
+            if(confirm("¿Eliminar?")) {
+                const basePath = ['artifacts', APP_ID, currentBranch, coll];
                 await deleteDoc(doc(db, ...basePath, id));
             }
         }
 
-        // === ACCIONES CHAT ===
+        // === AUDIO & CHAT ===
         window.startRecording = async function(e) {
-            if(e) e.preventDefault(); // Evitar scroll en movil
+            if(e) e.preventDefault(); 
             if(isRecording) return;
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -497,13 +515,10 @@
             const storageRef = ref(storage, fileName);
             const snap = await uploadBytes(storageRef, blob);
             const url = await getDownloadURL(snap.ref);
-            
             const basePath = ['artifacts', APP_ID, currentBranch, 'chat'];
-            await addDoc(collection(db, ...basePath), {
-                type: 'audio', url, sender: currentUser.uid, createdAt: serverTimestamp()
-            });
+            await addDoc(collection(db, ...basePath), { type: 'audio', url, sender: currentUser.uid, createdAt: serverTimestamp() });
         }
-        
+
         window.sendTextMessage = async function() {
             const input = document.getElementById('chatInput');
             const text = input.value.trim();
@@ -512,7 +527,7 @@
             await addDoc(collection(db, ...basePath), { type: 'text', text, sender: currentUser.uid, createdAt: serverTimestamp() });
             input.value = '';
         }
-        
+
         window.uploadImage = async function() {
              const file = document.getElementById('imageInput').files[0];
              if(!file) return;
@@ -523,6 +538,20 @@
              const basePath = ['artifacts', APP_ID, currentBranch, 'chat'];
              await addDoc(collection(db, ...basePath), { type: 'image', url, sender: currentUser.uid, createdAt: serverTimestamp() });
         }
+        
+        function playAudioAuto(url) {
+            const audio = new Audio(url);
+            audio.play().catch(e => console.log("Auto-play bloqueado"));
+        }
+        
+        window.toggleWakeLock = async function() {
+            if ('wakeLock' in navigator) {
+                try {
+                    if(wakeLock) { wakeLock.release(); wakeLock = null; document.getElementById('wakeLockBtn').classList.remove('bg-white/20'); alert("Pantalla desbloqueada"); } 
+                    else { wakeLock = await navigator.wakeLock.request('screen'); document.getElementById('wakeLockBtn').classList.add('bg-white/20'); alert("Pantalla Activa"); }
+                } catch (err) { alert("Error: " + err.name); }
+            } else alert("Navegador no soporta Wake Lock");
+        }
 
         // === UTILIDADES ===
         window.switchView = function(view) {
@@ -530,13 +559,30 @@
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
             document.getElementById(view + 'View').classList.remove('hidden');
             
-            ['tasks','notes','stock','chat'].forEach(v => {
-                document.getElementById('tab-'+v).className = v===view ? "flex-1 pb-3 text-center tab-active transition-all" : "flex-1 pb-3 text-center tab-inactive transition-all";
+            ['tasks','notes','stock','chat','delivery'].forEach(v => {
+                document.getElementById('tab-'+v).className = v===view ? "flex-1 pb-3 text-center tab-active min-w-[60px]" : "flex-1 pb-3 text-center tab-inactive min-w-[60px]";
             });
             
             const controls = document.getElementById('mainControls');
+            // Esconder botón "+" en chat y stock
             if(view === 'chat' || view === 'stock') controls.classList.add('hidden');
-            else controls.classList.remove('hidden');
+            else {
+                controls.classList.remove('hidden');
+                // Cambiar texto del botón
+                const btnText = document.getElementById('mainBtnText');
+                if(view === 'delivery') btnText.innerText = 'Reparto';
+                else if(view === 'notes') btnText.innerText = 'Nota';
+                else btnText.innerText = 'Tarea';
+            }
+        }
+        
+        window.addNewNote = async function() {
+            const content = document.getElementById('newNoteInput').value;
+            if(!content) return;
+            const basePath = ['artifacts', APP_ID, currentBranch, 'notes'];
+            await addDoc(collection(db, ...basePath), { content, createdAt: serverTimestamp() });
+            closeModal('addNoteModal');
+            document.getElementById('newNoteInput').value = '';
         }
 
         window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
@@ -547,12 +593,7 @@
         };
 
         function getPriorityStyles(p) {
-            const map = {
-                critical: { border: "border-red-500", label: "Urgente" },
-                high: { border: "border-orange-500", label: "Alta" },
-                medium: { border: "border-blue-500", label: "Media" },
-                low: { border: "border-emerald-500", label: "Baja" }
-            };
+            const map = { critical: { border: "border-red-500", label: "Urgente" }, high: { border: "border-orange-500", label: "Alta" }, medium: { border: "border-blue-500", label: "Media" }, low: { border: "border-emerald-500", label: "Baja" } };
             return map[p] || map.low;
         }
 
